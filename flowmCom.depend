@@ -1,0 +1,101 @@
+# depslib dependency file v1.0
+1550311439 source:/home/pi/Documents/source/commPort/SCCArgumentParser.cpp
+	"SCCArgumentParser.h"
+
+1550508543 /home/pi/Documents/source/commPort/SCCArgumentParser.h
+	<unordered_map>
+
+1550521600 source:/home/pi/Documents/source/commPort/SCCCommPort.cpp
+	"SCCCommPort.h"
+	<string>
+	<sstream>
+	<unordered_map>
+
+1550521533 /home/pi/Documents/source/commPort/SCCCommPort.h
+	"Detect_SO.h"
+	<windows.h>
+	<iostream>
+	<queue>
+	<thread>
+
+1550154723 /home/pi/Documents/source/commPort/Detect_SO.h
+
+1550523326 source:/home/pi/Documents/source/commPort/SCCLinuxComPort.cpp
+	"SCCCommPort.h"
+	<termios.h>
+	<unordered_map>
+	<sstream>
+	<fcntl.h>
+	<stdio.h>
+	<errno.h>
+	<string.h>
+	<unistd.h>
+
+1550476476 source:/home/pi/Documents/source/commPort/SCCRealTime.cpp
+	"SCCRealTime.h"
+	<ctime>
+	<sstream>
+	<iomanip>
+
+1550476128 /home/pi/Documents/source/commPort/SCCRealTime.h
+	<iostream>
+
+1550795655 source:/home/pi/Documents/source/main_control/CSocket.cpp
+	"CSocket.h"
+	"SCCLog.h"
+	<vector>
+
+1550723659 /home/pi/Documents/source/main_control/CSocket.h
+	<iostream>
+	<future>
+	<functional>
+	<queue>
+	<thread>
+	<pthread.h>
+	<errno.h>
+	<string.h>
+	<strings.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netinet/tcp.h>
+	<arpa/inet.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<netdb.h>
+	<unistd.h>
+	<sys/signal.h>
+	<mutex>
+
+1550862756 /home/pi/Documents/source/main_control/SCCLog.h
+	<string>
+	<ostream>
+
+1551116375 source:/home/pi/Documents/source/flowmCom/SCCFlowProtocol.cpp
+	"SCCFlowProtocol.h"
+	"../main_control/SCCDeviceNames.h"
+	<sstream>
+	<iomanip>
+
+1551116838 /home/pi/Documents/source/flowmCom/SCCFlowProtocol.h
+	<vector>
+	<list>
+	<unordered_map>
+	<queue>
+	<cstring>
+
+1550939031 /home/pi/Documents/source/main_control/SCCDeviceNames.h
+
+1551117199 source:/home/pi/Documents/source/flowmCom/main.cpp
+	<iostream>
+	<thread>
+	<chrono>
+	<string>
+	<sstream>
+	<algorithm>
+	"SCCFlowProtocol.h"
+	"../commPort/SCCCommPort.h"
+	"../commPort/SCCRealTime.h"
+	"../commPort/SCCArgumentParser.h"
+	"../main_control/CSocket.h"
+	"../main_control/SCCDeviceNames.h"
+
