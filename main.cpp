@@ -13,6 +13,7 @@
 
 #include "../main_control/CSocket.h"
 #include "../main_control/SCCDeviceNames.h"
+#include "../main_control/SCCLog.h"
 
 using namespace std;
 
@@ -20,6 +21,7 @@ static bool st_bSendMsgView = true;
 static bool st_bRcvMsgView  = true;
 
 CSocket sckComPort;
+SCCLog glLog(std::cout);
 
 bool bConnected     = false;
 
@@ -59,6 +61,8 @@ int main(int argc, char* argv[])
     int baudRate        = 9600;
     float fTimeFactor   = 1.0;
     int remotePort      = 0;
+    int startReg        = 0;
+    int numRegs         = 28;
 
     if (argc > 2)
     {
@@ -74,6 +78,11 @@ int main(int argc, char* argv[])
             else
                 if (strArg == "ViewSend")
                     st_bSendMsgView = true;
+        }
+        if ( argc > 6)
+        {
+            startReg    = std::stoi(argv[5]);
+            numRegs     = std::stoi(argv[6]);
         }
     }
 
@@ -94,7 +103,8 @@ int main(int argc, char* argv[])
     int iAddr = 1;
     std::string msg;
 
-    msg = flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, len);
+    //msg = flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, len);
+    msg = flowProtocol.getCmdReadRegisters(iAddr, bufferOut, len, startReg, numRegs);
 
     //flowProtocol.getCmdReadRegisters(iAddr, bufferOut, len);
 
@@ -120,8 +130,8 @@ int main(int argc, char* argv[])
         if (iNoRxCounter >= 5)
         {
             iNoRxCounter = 0;
-            flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, chLen);
-            //flowProtocol.getCmdExample(iAddr, bufferOut, chLen);
+            //flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, chLen);
+            flowProtocol.getCmdReadRegisters(iAddr, bufferOut, chLen, startReg, numRegs);
         }
         if (chLen > 0)
         {
@@ -154,11 +164,11 @@ int main(int argc, char* argv[])
                     cout << ++nCount << " Buffer In(Hex): [" << msg << "]. Buffer In(char): [" << bufferIn << "]" << std::endl;
                 }*/
                 std::string strCmd;
-                char resp[256];
+                //char resp[256];
                 int addr = 0;
-                char respLen = 0;
-                bool bIsValidResponse = flowProtocol.getWGTResponse(bufferIn, len, strCmd, addr, resp, respLen);
-                bool bNextAction = false;
+                //char respLen = 0;
+                bool bIsValidResponse = flowProtocol.getFlowMeterResponse(addr, bufferIn, len);
+                //bool bNextAction = false;
                 if (bIsValidResponse == true)
                 {
                     if (st_bRcvMsgView)

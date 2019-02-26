@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="1 9600" />
+				<Option parameters="0 9600 4000 1.0 1 1" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -48,6 +48,8 @@
 		<Unit filename="../main_control/CSocket.cpp" />
 		<Unit filename="../main_control/CSocket.h" />
 		<Unit filename="../main_control/SCCDeviceNames.h" />
+		<Unit filename="../main_control/SCCLog.cpp" />
+		<Unit filename="../main_control/SCCLog.h" />
 		<Unit filename="SCCFlowProtocol.cpp" />
 		<Unit filename="SCCFlowProtocol.h" />
 		<Unit filename="main.cpp" />

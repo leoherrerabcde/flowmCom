@@ -250,13 +250,17 @@ class SCCFlowProtocol
         }
         unsigned char asciiHexToDec(const char hexHi, const char hexLo);
         unsigned char asciiHexToDec(const char hex);
+        unsigned char asciiHexToDec(const char* hex);
 
         bool checkAddress(char addr, char* frame);
         bool checkCommand(char cmd, char* frame);
         bool checkLRC(char* pFirst, size_t len);
 
         bool compareValueToBuffer(unsigned char val, char* frame, size_t len);
-        void readRTUData(char* pFirst, size_t len);
+        void readRTUData(char addr, char* pFirst, size_t len);
+
+        void asciiToReal4(char* p, double& val, char num);
+        void printData(char* p, char num);
 
     private:
 
@@ -277,6 +281,9 @@ class SCCFlowProtocol
         bool m_bTagDetected[MAX_CHANNELS];
         VarStatus m_VarStatus[MAX_CHANNELS][MAX_VARS];
         FlowRegisters m_Register[MAX_CHANNELS];
+
+        std::string     m_strData;
+        int             m_iDataLen;
 };
 
 #endif // SCCFLOWRPROTOCOL_H

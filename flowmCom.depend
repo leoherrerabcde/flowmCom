@@ -66,15 +66,17 @@
 	<sys/signal.h>
 	<mutex>
 
-1550862756 /home/pi/Documents/source/main_control/SCCLog.h
+1551220561 /home/pi/Documents/source/main_control/SCCLog.h
 	<string>
 	<ostream>
 
-1551208784 source:/home/pi/Documents/source/flowmCom/SCCFlowProtocol.cpp
+1551221975 source:/home/pi/Documents/source/flowmCom/SCCFlowProtocol.cpp
 	"SCCFlowProtocol.h"
 	"../main_control/SCCDeviceNames.h"
+	"../main_control/SCCLog.h"
+	<iostream>
 
-1551214062 /home/pi/Documents/source/flowmCom/SCCFlowProtocol.h
+1551221577 /home/pi/Documents/source/flowmCom/SCCFlowProtocol.h
 	<vector>
 	<list>
 	<unordered_map>
@@ -86,7 +88,7 @@
 
 1550939031 /home/pi/Documents/source/main_control/SCCDeviceNames.h
 
-1551208913 source:/home/pi/Documents/source/flowmCom/main.cpp
+1551222107 source:/home/pi/Documents/source/flowmCom/main.cpp
 	<iostream>
 	<thread>
 	<chrono>
@@ -99,4 +101,9 @@
 	"../commPort/SCCArgumentParser.h"
 	"../main_control/CSocket.h"
 	"../main_control/SCCDeviceNames.h"
+	"../main_control/SCCLog.h"
+
+1550713336 source:/home/pi/Documents/source/main_control/SCCLog.cpp
+	"SCCLog.h"
+	<iostream>
 

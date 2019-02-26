@@ -1,7 +1,10 @@
 #include "SCCFlowProtocol.h"
 #include "../main_control/SCCDeviceNames.h"
+#include "../main_control/SCCLog.h"
 
-//#include <cstring>
+#include <iostream>
+
+extern SCCLog glLog;
 
 std::vector<std::string> stH2WCmdNameList =
 {
@@ -71,7 +74,7 @@ static std::unordered_map<int,int> stVariableThresHoldMap =
 };
 
 
-SCCFlowProtocol::SCCFlowProtocol() : m_pLast(m_chBufferIn), m_iBufferSize(0)
+SCCFlowProtocol::SCCFlowProtocol() : m_pLast(m_chBufferIn), m_iBufferSize(0), m_iDataLen(0)
 {
     //ctor
     memset(m_bAlarmVector,0, sizeof(bool)*MAX_CHANNELS);
@@ -95,7 +98,7 @@ std::string SCCFlowProtocol::getStrCmdStatusCheck(int addr,
                                                char& len)
 {
     //return getStrCmd(CMD_CHECKSTATUS, addr, 0, buffer, len);
-    return getCmdReadRegisters(addr, buffer, len, 0, 28);
+    return getCmdReadRegisters(addr, buffer, len, 0, 10);
 }
 
 std::string SCCFlowProtocol::getStrCmdSetAddr(int addr,
@@ -615,7 +618,9 @@ std::string SCCFlowProtocol::printStatus(char addr)
     std::stringstream ss;
 
     ss << FRAME_START_MARK ;
-    ss << VAR_BATTERY_ALARM << ASSIGN_CHAR << boolToString(isAlarm(addr));
+    ss << "data" << ASSIGN_CHAR << m_strData;
+    ss << SEPARATOR_CHAR << "data_len" << ASSIGN_CHAR << m_iDataLen;
+    /*ss << VAR_BATTERY_ALARM << ASSIGN_CHAR << boolToString(isAlarm(addr));
     ss << SEPARATOR_CHAR << VAR_FAIL_STATUS << ASSIGN_CHAR << boolToString(isFail(addr));
     ss << SEPARATOR_CHAR << VAR_NOZZLE_ACTIVED << ASSIGN_CHAR << boolToString(isNozzleActived(addr));
     ss << SEPARATOR_CHAR << VAR_TAG_DETECTED << ASSIGN_CHAR ;
@@ -636,7 +641,7 @@ std::string SCCFlowProtocol::printStatus(char addr)
     else
     {
         ss << boolToString(isTagDetected(addr));
-    }
+    }*/
     ss << FRAME_STOP_MARK;
     return std::string(ss.str());
 }
@@ -746,6 +751,11 @@ unsigned char SCCFlowProtocol::asciiHexToDec(const char hex)
     return d;
 }
 
+unsigned char SCCFlowProtocol::asciiHexToDec(const char* hex)
+{
+    return asciiHexToDec(*hex, *(hex+1));
+}
+
 bool SCCFlowProtocol::getFlowMeterResponse(char addr, char* buffer, char len)
 {
     char* p = buffer;
@@ -760,7 +770,11 @@ bool SCCFlowProtocol::getFlowMeterResponse(char addr, char* buffer, char len)
     if (checkCommand(RTU_CMD_READ, p++))
         return false;
     ++p;
-    readRTUData(p, len-5-4);
+    char count = asciiHexToDec(p++);
+    ++p;
+    if (count != len - 11)
+        return false;
+    readRTUData(addr, p, count);
     return true;
 }
 
@@ -787,6 +801,29 @@ bool SCCFlowProtocol::checkLRC(char* pFirst, size_t len)
     return compareValueToBuffer(lrc, pFirst+len, 2);
 }
 
-void SCCFlowProtocol::readRTUData(char* pFirst, size_t len)
+void SCCFlowProtocol::readRTUData(char addr, char* pFirst, size_t len)
 {
+    printData(pFirst, len);
+    char* p = pFirst;
+    FlowRegisters& reg = m_Register[(unsigned char)addr];
+
+    asciiToReal4(p, reg.m_dInstantFlowRate, 2);
+}
+
+void SCCFlowProtocol::asciiToReal4(char* p, double& val, char num)
+{
+}
+
+void SCCFlowProtocol::printData(char* p, char num)
+{
+    //std::cout << "Data: ";
+    m_iDataLen = num;
+    p[num] = NULL_CHAR;
+
+    m_strData = p;
+    return;
+
+    for ( size_t i = 0; i < (unsigned)num; ++i)
+        std::cout << *p++;
+    std::cout << std::endl;
 }
