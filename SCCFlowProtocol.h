@@ -7,6 +7,9 @@
 #include <unordered_map>
 #include <queue>
 #include <cstring>
+#include <sstream>
+#include <iomanip>
+#include <locale>
 
 #define CMD_INVALID "Invalid"
 #define CMD_CHECKSTATUS "CheckStatus"
@@ -16,19 +19,21 @@
 #define HOST_HEADER "HostHeader"
 #define WGT_HEADER "WGTHeader"
 
-#define ADDRESS_BYTE 'U'
-#define ETX_BYTE '\3'
-#define NULL_CHAR '\0'
-#define TAB_CHAR  '\t'
+#define ADDRESS_BYTE    'U'
+#define ETX_BYTE        '\3'
+#define NULL_CHAR       '\0'
+#define TAB_CHAR        '\t'
 #define SEPARATOR_CHAR  ','
 #define ASSIGN_CHAR     ':'
-#define START_BYTE      ':'
-#define LF_CHAR      '\n'
-#define CR_CHAR      '\r'
+#define START_BYTE      ASSIGN_CHAR
+#define LF_CHAR         '\n'
+#define CR_CHAR         '\r'
+
+#define RTU_CMD_READ    0x03
 
 #define MAX_WGT_BUFFER_SIZE 512
 
-#define MAX_CHANNELS 16
+#define MAX_CHANNELS 1
 
 #define MIN_WGT_DATA 8
 
@@ -134,6 +139,19 @@ struct VarStatus
     int     iChangesCount;
 };
 
+struct FlowRegisters
+{
+    double      m_dInstantFlowRate;
+    double      m_dFluidSpeed;
+    double      m_dMeasureFluidSoundSpeed;
+    long        m_lPosAcumFlowRate;
+    double      m_dPosAcumFlowRateDecPart;
+    long        m_lNegAcumFlowRate;
+    double      m_dNegAcumFlowRateDecPart;
+    long        m_lNetAcumFlowRate;
+    double      m_dNetAcumFlowRateDecPart;
+};
+
 class SCCFlowProtocol
 {
     public:
@@ -146,6 +164,7 @@ class SCCFlowProtocol
         std::string getStrCmdGetTagId(int addr, char* buffer, char& len);
 
         bool getWGTResponse(char* buffer, char len, std::string& cmd, int& addr, char* resp, char& respLen);
+        bool getFlowMeterResponse(char addr, char* buffer, char len);
 
         std::string getStrStatus(char status);
 
@@ -161,11 +180,12 @@ class SCCFlowProtocol
         bool getTagId(char addr, char* tagBuffer, char& len);
         char getStatus(char addr);
 
-        std::string getCmdExample(char addr, char* buffer, char& len);
+        std::string getCmdReadRegisters(char addr, char* buffer, char& len, char startRegister, char numRegisters);
 
     protected:
 
         unsigned char calcCRC(unsigned char* pFirst, unsigned char* pEnd);
+        unsigned char calcLRC(unsigned char* pFirst,unsigned char len);
         std::string getStrCmd(const std::string& cmd, int addr, int addr2, char* buffer, char& len);
         void moveBufferToLeft(char* pos, char offset);
         std::string getWGTCommand(char cmd);
@@ -204,6 +224,40 @@ class SCCFlowProtocol
         bool clearVar(int addr, int var);
         bool isSetVar(int addr, int var);
 
+        template <class T>
+        std::string numToAscii(const T& d, char length)
+        {
+            std::stringstream ss;
+
+            ss << std::setfill('0') << std::setw(length) << std::hex << (int)d;
+
+            std::string str(ss.str());
+
+            std::string strUpper;
+
+            std::locale loc;
+
+            for (std::string::size_type i = 0; i < str.length(); ++i)
+                strUpper += std::toupper(str[i], loc);
+
+            return strUpper;
+        }
+        template <class T>
+        void numToAscii(const T& d, char* buffer, char length)
+        {
+            std::string s = numToAscii(d, length);
+            memcpy(buffer, s.c_str(), length);
+        }
+        unsigned char asciiHexToDec(const char hexHi, const char hexLo);
+        unsigned char asciiHexToDec(const char hex);
+
+        bool checkAddress(char addr, char* frame);
+        bool checkCommand(char cmd, char* frame);
+        bool checkLRC(char* pFirst, size_t len);
+
+        bool compareValueToBuffer(unsigned char val, char* frame, size_t len);
+        void readRTUData(char* pFirst, size_t len);
+
     private:
 
         int m_iAddress;
@@ -222,6 +276,7 @@ class SCCFlowProtocol
         bool m_bNozzleActivedVector[MAX_CHANNELS];
         bool m_bTagDetected[MAX_CHANNELS];
         VarStatus m_VarStatus[MAX_CHANNELS][MAX_VARS];
+        FlowRegisters m_Register[MAX_CHANNELS];
 };
 
 #endif // SCCFLOWRPROTOCOL_H

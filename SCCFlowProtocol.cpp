@@ -1,8 +1,6 @@
 #include "SCCFlowProtocol.h"
 #include "../main_control/SCCDeviceNames.h"
 
-#include <sstream>
-#include <iomanip>
 //#include <cstring>
 
 std::vector<std::string> stH2WCmdNameList =
@@ -96,7 +94,8 @@ std::string SCCFlowProtocol::getStrCmdStatusCheck(int addr,
                                                char* buffer,
                                                char& len)
 {
-    return getStrCmd(CMD_CHECKSTATUS, addr, 0, buffer, len);
+    //return getStrCmd(CMD_CHECKSTATUS, addr, 0, buffer, len);
+    return getCmdReadRegisters(addr, buffer, len, 0, 28);
 }
 
 std::string SCCFlowProtocol::getStrCmdSetAddr(int addr,
@@ -153,6 +152,23 @@ unsigned char SCCFlowProtocol::calcCRC(unsigned char* pFirst, unsigned char* pEn
         ucBCC ^= *p;
 
     return ucBCC;
+}
+
+unsigned char SCCFlowProtocol::calcLRC(unsigned char* pFirst, unsigned char len)
+{
+    unsigned char ucLRC = 0;
+
+    unsigned char* p = (unsigned char*)pFirst;
+
+    for ( unsigned char i = 0; i < len ; i+=2)
+    {
+        unsigned char hi = *p++;
+        ucLRC += asciiHexToDec(hi, *p++);
+    }
+    ucLRC ^= 0xff;
+    ucLRC += 1;
+
+    return ucLRC;
 }
 
 std::string SCCFlowProtocol::convChar2Hex(char* buffer, char& len)
@@ -676,9 +692,24 @@ bool SCCFlowProtocol::getTagId(char addr, char* tagBuffer, char& len)
     return true;
 }
 
-std::string SCCFlowProtocol::getCmdExample(char addr, char* buffer, char& len)
+std::string SCCFlowProtocol::getCmdReadRegisters(char addr,
+                                    char* buffer,
+                                    char& len,
+                                    char startRegister,
+                                    char numRegisters)
 {
-    std::string msg(":01030000000AF2");
+    std::string msg; //(":01030000000AF2");
+    msg += START_BYTE;
+    //
+    //(": | 01 | 03 | 0000 | 000A | F2");
+
+    msg += numToAscii(addr, 2);
+    msg += numToAscii(RTU_CMD_READ, 2);
+    msg += numToAscii(startRegister, 4);
+    msg += numToAscii(numRegisters, 4);
+    unsigned char buf[msg.length()];
+    memcpy(buf, msg.substr(1).c_str(), msg.length());
+    msg += numToAscii(calcLRC(buf, msg.length() - 1), 2);
 
     msg += CR_CHAR;
     msg += LF_CHAR;
@@ -691,3 +722,71 @@ std::string SCCFlowProtocol::getCmdExample(char addr, char* buffer, char& len)
     return msg;
 }
 
+unsigned char SCCFlowProtocol::asciiHexToDec(const char hexHi, const char hexLo)
+{
+    unsigned char hi, lo;
+
+    hi = asciiHexToDec(hexHi);
+    lo = asciiHexToDec(hexLo);
+
+    lo += (hi << 4);
+
+    return lo;
+}
+
+unsigned char SCCFlowProtocol::asciiHexToDec(const char hex)
+{
+    unsigned char d;
+
+    d = hex - 48;
+
+    if (d > 9)
+        d -= 7;
+
+    return d;
+}
+
+bool SCCFlowProtocol::getFlowMeterResponse(char addr, char* buffer, char len)
+{
+    char* p = buffer;
+
+    if (*p++ != START_BYTE)
+        return false;
+    if (checkLRC(p, len-5))
+        return false;
+    if (checkAddress(addr, p++))
+        return false;
+    ++p;
+    if (checkCommand(RTU_CMD_READ, p++))
+        return false;
+    ++p;
+    readRTUData(p, len-5-4);
+    return true;
+}
+
+bool SCCFlowProtocol::checkAddress(char addr, char* frame)
+{
+    return compareValueToBuffer(addr, frame, 2);
+}
+
+bool SCCFlowProtocol::checkCommand(char cmd, char* frame)
+{
+    return compareValueToBuffer(cmd, frame, 2);
+}
+
+bool SCCFlowProtocol::compareValueToBuffer(unsigned char val, char* frame, size_t len)
+{
+    char buf[len*2];
+    numToAscii(val, buf, len*2);
+    return (memcmp(buf, frame, len*2) == 0);
+}
+
+bool SCCFlowProtocol::checkLRC(char* pFirst, size_t len)
+{
+    unsigned char lrc = calcLRC((unsigned char*)pFirst, len);
+    return compareValueToBuffer(lrc, pFirst+len, 2);
+}
+
+void SCCFlowProtocol::readRTUData(char* pFirst, size_t len)
+{
+}

@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 
     msg = flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, len);
 
-    flowProtocol.getCmdExample(iAddr, bufferOut, len);
+    //flowProtocol.getCmdReadRegisters(iAddr, bufferOut, len);
 
     msg = flowProtocol.convChar2Hex(bufferOut, len);
 
@@ -120,8 +120,8 @@ int main(int argc, char* argv[])
         if (iNoRxCounter >= 5)
         {
             iNoRxCounter = 0;
-            //flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, chLen);
-            flowProtocol.getCmdExample(iAddr, bufferOut, chLen);
+            flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, chLen);
+            //flowProtocol.getCmdExample(iAddr, bufferOut, chLen);
         }
         if (chLen > 0)
         {
@@ -167,8 +167,8 @@ int main(int argc, char* argv[])
                         /*if (strCmd == CMD_CHECKSTATUS)
                             cout << ++nCount << " WGT Status: " << flowProtocol.getStrStatus(resp[0]) << endl;*/
                     }
-                    bNextAction = flowProtocol.nextAction(iAddr, bufferOut, chLen, iTimeOut);
-                    if (bNextAction == true)
+                    /*bNextAction = flowProtocol.nextAction(iAddr, bufferOut, chLen, iTimeOut);
+                    if (bNextAction == true)*/
                         if (st_bRcvMsgView)
                         {
                             std::stringstream ss;
