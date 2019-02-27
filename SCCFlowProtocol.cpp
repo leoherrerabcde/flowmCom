@@ -610,12 +610,12 @@ ActionStruct SCCFlowProtocol::getActionFromStatus(char status)
     return actionSt;
 }
 
-std::string SCCFlowProtocol::printStatus(char addr)
+std::string SCCFlowProtocol::printStatus(char addr, bool addStrData)
 {
     if (addr > MAX_CHANNELS)
         return "";
 
-    FlowRegisters& reg  = m_Register[(unsigned char)addr];
+    FlowRegisters& reg  = m_Register[(unsigned char)(addr-1)];
 
     std::stringstream ss;
 
@@ -633,8 +633,11 @@ std::string SCCFlowProtocol::printStatus(char addr)
     ss << SEPARATOR_CHAR << VAR_NETACUMFLOWRATE 		<< ASSIGN_CHAR << reg.m_lNetAcumFlowRate;
     ss << SEPARATOR_CHAR << VAR_NETACUMFLOWRATEDECPART 	<< ASSIGN_CHAR << reg.m_dNetAcumFlowRateDecPart;
 
-    ss << SEPARATOR_CHAR << "strData" << ASSIGN_CHAR << m_strData;
-    ss << SEPARATOR_CHAR << "data_len" << ASSIGN_CHAR << m_iDataLen;
+    if (addStrData)
+    {
+        ss << SEPARATOR_CHAR << "strData" << ASSIGN_CHAR << m_strData;
+        ss << SEPARATOR_CHAR << "data_len" << ASSIGN_CHAR << m_iDataLen;
+    }
 
     ss << FRAME_STOP_MARK;
 
@@ -695,8 +698,8 @@ bool SCCFlowProtocol::getTagId(char addr, char* tagBuffer, char& len)
 std::string SCCFlowProtocol::getCmdReadRegisters(char addr,
                                     char* buffer,
                                     char& len,
-                                    char startRegister,
-                                    char numRegisters)
+                                    unsigned int startRegister,
+                                    unsigned int numRegisters)
 {
     std::string msg; //(":01030000000AF2");
     msg += START_BYTE;
@@ -800,18 +803,18 @@ void SCCFlowProtocol::readRTUData(char addr, char* pFirst, size_t len)
 {
     putData(pFirst, len);
     char* pSrc = pFirst;
-    unsigned char* pDst = (unsigned char*)&m_RawData[(unsigned char)addr].fRegister[0];
-    const size_t sizeRawData = sizeof(m_RawData[(unsigned char)addr].fRegister[0]);
+    unsigned char* pDst = (unsigned char*)&m_RawData[(unsigned char)(addr-1)].fRegister[0];
+    const size_t sizeRawData = sizeof(m_RawData[(unsigned char)(addr-1)].fRegister[0]);
 
     for (size_t i = 0; i < MAX_REGISTERS/2 ; ++i)
     {
         asciiHexToFloat(pDst, pSrc, sizeRawData);
-        pDst += sizeRawData*2;
-        pSrc += sizeRawData;
+        pDst += sizeRawData;
+        pSrc += sizeRawData*2;
     }
 
-    RawData& rawDat     = m_RawData[(unsigned char)addr];
-    FlowRegisters& reg  = m_Register[(unsigned char)addr];
+    RawData& rawDat     = m_RawData[(unsigned char)(addr-1)];
+    FlowRegisters& reg  = m_Register[(unsigned char)(addr-1)];
     //size_t i = 0;
 
     //rawToReal4(p, reg.m_dInstantFlowRate, 2);
@@ -850,3 +853,64 @@ void SCCFlowProtocol::putData(char* p, char num)
     m_strData = p;
     return;
 }
+
+void SCCFlowProtocol::printData()
+{
+    std::cout << "Data: " << m_strData << std::endl;
+
+    const size_t sizeRawData = sizeof(float);
+    size_t sz = m_iDataLen / (sizeRawData*2);
+
+    if (sz)
+    {
+        float       fReg[sz];
+        int32_t     lReg[sz];
+
+        char* pSrc = (char*)m_strData.c_str();
+        unsigned char* pDst1 = (unsigned char*)&fReg;
+        unsigned char* pDst2 = (unsigned char*)&lReg;
+
+        for (size_t i = 0; i < sz ; ++i)
+        {
+            asciiHexToFloat(pDst1, pSrc, sizeRawData);
+            asciiHexToFloat(pDst2, pSrc, sizeRawData);
+            pDst1 += sizeRawData;
+            pDst2 += sizeRawData;
+            pSrc += sizeRawData*2;
+        }
+
+        for (size_t i = 0; i < sz ; ++i)
+        {
+            std::cout << "float: " << fReg[i];
+            std::cout << ", Long: " << lReg[i];
+            std::cout << std::endl;
+        }
+    }
+    else
+    {
+        const size_t sizeData = sizeof(int16_t);
+        sz = m_iDataLen / (sizeData*2);
+
+        if (sz)
+        {
+            int16_t     lReg[sz];
+
+            char* pSrc = (char*)m_strData.c_str();
+            unsigned char* pDst2 = (unsigned char*)&lReg;
+
+            for (size_t i = 0; i < sz ; ++i)
+            {
+                asciiHexToFloat(pDst2, pSrc, sizeData);
+                pDst2 += sizeData;
+                pSrc += sizeData*2;
+            }
+
+            for (size_t i = 0; i < sz ; ++i)
+            {
+                std::cout << "Long: " << lReg[i];
+                std::cout << std::endl;
+            }
+        }
+    }
+}
+

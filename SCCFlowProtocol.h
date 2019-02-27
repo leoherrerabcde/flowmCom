@@ -206,12 +206,14 @@ class SCCFlowProtocol
         bool isNozzleActived(char addr);
         bool isTagDetected(char addr);
 
-        std::string printStatus(char addr);
+        std::string printStatus(char addr, bool addStrData = false);
 
         bool getTagId(char addr, char* tagBuffer, char& len);
         char getStatus(char addr);
 
-        std::string getCmdReadRegisters(char addr, char* buffer, char& len, char startRegister, char numRegisters);
+        std::string getCmdReadRegisters(char addr, char* buffer, char& len, unsigned int startRegister, unsigned int numRegisters);
+
+        void printData();
 
     protected:
 

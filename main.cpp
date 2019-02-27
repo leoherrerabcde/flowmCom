@@ -17,7 +17,9 @@
 
 using namespace std;
 
-static bool st_bSendMsgView = true;
+#define MAX_BUFFER_IN   2048
+
+static bool st_bSendMsgView = false;
 static bool st_bRcvMsgView  = true;
 
 CSocket sckComPort;
@@ -30,7 +32,7 @@ std::string firstMessage()
     std::stringstream ss;
 
     ss << FRAME_START_MARK;
-    ss << DEVICE_NAME << ":" << DEVICE_RFID_BOQUILLA << ",";
+    ss << DEVICE_NAME << ":" << DEVICE_FLOWMETER << ",";
     ss << SERVICE_PID << ":" << getpid();
     ss << FRAME_STOP_MARK;
 
@@ -61,8 +63,11 @@ int main(int argc, char* argv[])
     int baudRate        = 9600;
     float fTimeFactor   = 1.0;
     int remotePort      = 0;
-    int startReg        = 0;
+    int startReg        = 1;
     int numRegs         = MAX_REGISTERS;
+    char chBufferIn[MAX_BUFFER_IN];
+    size_t posBuf       = 0;
+    bool bOneTime       = false;
 
     if (argc > 2)
     {
@@ -83,6 +88,12 @@ int main(int argc, char* argv[])
         {
             startReg    = std::stoi(argv[5]);
             numRegs     = std::stoi(argv[6]);
+        }
+        if (argc > 7)
+        {
+            std::string strArg(argv[7]);
+            if (strArg == "true")
+                bOneTime = true;
         }
     }
 
@@ -112,7 +123,9 @@ int main(int argc, char* argv[])
 
     if (st_bSendMsgView)
         std::cout << "Message: " << bufferOut << " sent." << std::endl;
+
     commPort.sendData(bufferOut, len);
+    commPort.sleepDuringTxRx(len+numRegs*4+11);
 
     if (st_bSendMsgView)
         cout << "Waiting for response" << std::endl;
@@ -126,7 +139,7 @@ int main(int argc, char* argv[])
     do
     {
         bNextAddr = true;
-        iTimeOut = 1000;
+        iTimeOut = 250;
         if (iNoRxCounter >= 5)
         {
             iNoRxCounter = 0;
@@ -142,9 +155,10 @@ int main(int argc, char* argv[])
                 cout << SCCRealTime::getTimeStamp() << ',' << "Sending Message: " << bufferOut << std::endl;
             }
             commPort.sendData(bufferOut, chLen);
+            commPort.sleepDuringTxRx(chLen+numRegs*4+11);
             //chLenLast = chLen;
             chLen = 0;
-            iTimeOut = 20;
+            //iTimeOut = 20;
             bNextAddr = false;
         }
         if (commPort.isRxEvent() == true)
@@ -153,11 +167,17 @@ int main(int argc, char* argv[])
             bNextAddr =false;
             int iLen;
             bool ret = commPort.getData(bufferIn, iLen);
-            cout << " bufferIn.len(): " << iLen << ". bufferIn(char): [" << bufferIn << "]" << std::endl;
+            if (st_bSendMsgView)
+                cout << " bufferIn.len(): " << iLen << ". bufferIn(char): [" << bufferIn << "]" << std::endl;
 
             if (ret == true)
             {
-                len = (char)iLen;
+                if (posBuf + iLen < MAX_BUFFER_IN)
+                {
+                    memcpy(&chBufferIn[posBuf], bufferIn, iLen);
+                    posBuf += iLen;
+                }
+                //len = (char)iLen;
                 /*if (st_bRcvMsgView)
                 {
                     msg = flowProtocol.convChar2Hex(bufferIn, len);
@@ -165,12 +185,14 @@ int main(int argc, char* argv[])
                 }*/
                 std::string strCmd;
                 //char resp[256];
-                int addr = 0;
+                //int addr = iAddr;
                 //char respLen = 0;
-                bool bIsValidResponse = flowProtocol.getFlowMeterResponse(addr, bufferIn, len);
+                bool bIsValidResponse = flowProtocol.getFlowMeterResponse(iAddr, chBufferIn, posBuf);
                 //bool bNextAction = false;
                 if (bIsValidResponse == true)
                 {
+                    posBuf = 0;
+                    //iTimeOut = 50;
                     if (st_bRcvMsgView)
                     {
                         //cout << ++nCount << " " << commPort.printCounter() << clock.getTimeStamp() << " Valid WGT Response" << std::endl;
@@ -181,10 +203,19 @@ int main(int argc, char* argv[])
                     if (bNextAction == true)*/
                         if (st_bRcvMsgView)
                         {
-                            std::stringstream ss;
+                            //std::stringstream ss;
                             //ss << ++nCount << " " << commPort.printCounter() << flowProtocol.printStatus(iAddr) << std::endl;
                             printMsg(flowProtocol.printStatus(iAddr));
                         }
+                    if (st_bSendMsgView)
+                        flowProtocol.printData();
+                    if (bOneTime)
+                        break;
+                }
+                else
+                {
+                    iTimeOut = 0;
+                    commPort.sleepDuringTxRx(numRegs*4+11-posBuf);
                 }
             }
         }
@@ -219,6 +250,7 @@ int main(int argc, char* argv[])
     while (commPort.isOpened());
 
     sckComPort.disconnect();
+    exit(0);
     commPort.closePort();
 
     return 0;
