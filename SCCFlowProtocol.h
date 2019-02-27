@@ -33,11 +33,13 @@
 
 #define MAX_WGT_BUFFER_SIZE 512
 
-#define MAX_CHANNELS 1
+#define MAX_CHANNELS        1
 
-#define MIN_WGT_DATA 8
+#define MIN_WGT_DATA        8
 
-#define MAX_VARS    4
+#define MAX_VARS            4
+
+#define MAX_REGISTERS       28
 
 #define STATUS_FAILURE              0x4e
 #define STATUS_SUCCESS              0x59
@@ -56,6 +58,29 @@
 #define VAR_FAIL_STATUS             "Fail_Status"
 #define VAR_NOZZLE_ACTIVED          "Nozzle_Actived"
 #define VAR_TAG_DETECTED            "Tag_Detected"
+
+
+
+#define D_INSTANTFLOWRATE			0
+#define D_FLUIDSPEED				2
+#define D_MEASUREFLUIDSOUNDSPEED	3
+#define L_POSACUMFLOWRATE			4
+#define D_POSACUMFLOWRATEDECPART	5
+#define L_NEGACUMFLOWRATE			6
+#define D_NEGACUMFLOWRATEDECPART	7
+#define L_NETACUMFLOWRATE			12
+#define D_NETACUMFLOWRATEDECPART	13
+
+#define VAR_INSTANTFLOWRATE			"InstantFlowRate"
+#define VAR_FLUIDSPEED				"FluidSpeed"
+#define VAR_MEASUREFLUIDSOUNDSPEED	"MeasureFluidSoundSpeed"
+#define VAR_POSACUMFLOWRATE			"PosAcumFlowRate"
+#define VAR_POSACUMFLOWRATEDECPART	"PosAcumFlowRateDecPart"
+#define VAR_NEGACUMFLOWRATE			"NegAcumFlowRate"
+#define VAR_NEGACUMFLOWRATEDECPART	"NegAcumFlowRateDecPart"
+#define VAR_NETACUMFLOWRATE			"NetAcumFlowRate"
+#define VAR_NETACUMFLOWRATEDECPART	"NetAcumFlowRateDecPart"
+
 
 enum Host2WGTCommand
 {
@@ -150,6 +175,12 @@ struct FlowRegisters
     double      m_dNegAcumFlowRateDecPart;
     long        m_lNetAcumFlowRate;
     double      m_dNetAcumFlowRateDecPart;
+};
+
+union RawData
+{
+    float       fRegister[MAX_REGISTERS/2];
+    int32_t     lRegister[MAX_REGISTERS/2];
 };
 
 class SCCFlowProtocol
@@ -260,7 +291,8 @@ class SCCFlowProtocol
         void readRTUData(char addr, char* pFirst, size_t len);
 
         void asciiToReal4(char* p, double& val, char num);
-        void printData(char* p, char num);
+        void asciiHexToFloat(unsigned char* pDst, char* pSrc, size_t bytes);
+        void putData(char* p, char num);
 
     private:
 
@@ -281,6 +313,7 @@ class SCCFlowProtocol
         bool m_bTagDetected[MAX_CHANNELS];
         VarStatus m_VarStatus[MAX_CHANNELS][MAX_VARS];
         FlowRegisters m_Register[MAX_CHANNELS];
+        RawData         m_RawData[MAX_CHANNELS];
 
         std::string     m_strData;
         int             m_iDataLen;

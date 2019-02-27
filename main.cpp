@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     float fTimeFactor   = 1.0;
     int remotePort      = 0;
     int startReg        = 0;
-    int numRegs         = 28;
+    int numRegs         = MAX_REGISTERS;
 
     if (argc > 2)
     {

@@ -615,34 +615,29 @@ std::string SCCFlowProtocol::printStatus(char addr)
     if (addr > MAX_CHANNELS)
         return "";
 
+    FlowRegisters& reg  = m_Register[(unsigned char)addr];
+
     std::stringstream ss;
 
     ss << FRAME_START_MARK ;
-    ss << "data" << ASSIGN_CHAR << m_strData;
-    ss << SEPARATOR_CHAR << "data_len" << ASSIGN_CHAR << m_iDataLen;
-    /*ss << VAR_BATTERY_ALARM << ASSIGN_CHAR << boolToString(isAlarm(addr));
-    ss << SEPARATOR_CHAR << VAR_FAIL_STATUS << ASSIGN_CHAR << boolToString(isFail(addr));
-    ss << SEPARATOR_CHAR << VAR_NOZZLE_ACTIVED << ASSIGN_CHAR << boolToString(isNozzleActived(addr));
-    ss << SEPARATOR_CHAR << VAR_TAG_DETECTED << ASSIGN_CHAR ;
 
-    if (isTagDetected(addr))
-    {
-        char tagBuffer[MAX_WGT_BUFFER_SIZE];
-        char lenTag;
-        getTagId(addr, tagBuffer, lenTag);
-        if (lenTag)
-        {
-            std::string strTag = convChar2Hex(tagBuffer, lenTag);
-            ss << strTag;
-        }
-        else
-            ss << boolToString(false);
-    }
-    else
-    {
-        ss << boolToString(isTagDetected(addr));
-    }*/
+    ss << MSG_HEADER_TYPE << ASSIGN_CHAR << DEVICE_FLOWMETER;
+
+    ss << SEPARATOR_CHAR << VAR_INSTANTFLOWRATE 		<< ASSIGN_CHAR << reg.m_dInstantFlowRate;
+    ss << SEPARATOR_CHAR << VAR_FLUIDSPEED 				<< ASSIGN_CHAR << reg.m_dFluidSpeed;
+    ss << SEPARATOR_CHAR << VAR_MEASUREFLUIDSOUNDSPEED 	<< ASSIGN_CHAR << reg.m_dMeasureFluidSoundSpeed;
+    ss << SEPARATOR_CHAR << VAR_POSACUMFLOWRATE 		<< ASSIGN_CHAR << reg.m_lPosAcumFlowRate;
+    ss << SEPARATOR_CHAR << VAR_POSACUMFLOWRATEDECPART 	<< ASSIGN_CHAR << reg.m_dPosAcumFlowRateDecPart;
+    ss << SEPARATOR_CHAR << VAR_NEGACUMFLOWRATE 		<< ASSIGN_CHAR << reg.m_lNegAcumFlowRate;
+    ss << SEPARATOR_CHAR << VAR_NEGACUMFLOWRATEDECPART 	<< ASSIGN_CHAR << reg.m_dNegAcumFlowRateDecPart;
+    ss << SEPARATOR_CHAR << VAR_NETACUMFLOWRATE 		<< ASSIGN_CHAR << reg.m_lNetAcumFlowRate;
+    ss << SEPARATOR_CHAR << VAR_NETACUMFLOWRATEDECPART 	<< ASSIGN_CHAR << reg.m_dNetAcumFlowRateDecPart;
+
+    ss << SEPARATOR_CHAR << "strData" << ASSIGN_CHAR << m_strData;
+    ss << SEPARATOR_CHAR << "data_len" << ASSIGN_CHAR << m_iDataLen;
+
     ss << FRAME_STOP_MARK;
+
     return std::string(ss.str());
 }
 
@@ -803,18 +798,50 @@ bool SCCFlowProtocol::checkLRC(char* pFirst, size_t len)
 
 void SCCFlowProtocol::readRTUData(char addr, char* pFirst, size_t len)
 {
-    printData(pFirst, len);
-    char* p = pFirst;
-    FlowRegisters& reg = m_Register[(unsigned char)addr];
+    putData(pFirst, len);
+    char* pSrc = pFirst;
+    unsigned char* pDst = (unsigned char*)&m_RawData[(unsigned char)addr].fRegister[0];
+    const size_t sizeRawData = sizeof(m_RawData[(unsigned char)addr].fRegister[0]);
 
-    asciiToReal4(p, reg.m_dInstantFlowRate, 2);
+    for (size_t i = 0; i < MAX_REGISTERS/2 ; ++i)
+    {
+        asciiHexToFloat(pDst, pSrc, sizeRawData);
+        pDst += sizeRawData*2;
+        pSrc += sizeRawData;
+    }
+
+    RawData& rawDat     = m_RawData[(unsigned char)addr];
+    FlowRegisters& reg  = m_Register[(unsigned char)addr];
+    //size_t i = 0;
+
+    //rawToReal4(p, reg.m_dInstantFlowRate, 2);
+    reg.m_dInstantFlowRate          = rawDat.fRegister[D_INSTANTFLOWRATE];
+    reg.m_dFluidSpeed               = rawDat.fRegister[D_FLUIDSPEED];
+    reg.m_dMeasureFluidSoundSpeed   = rawDat.fRegister[D_MEASUREFLUIDSOUNDSPEED];
+    reg.m_lPosAcumFlowRate          = rawDat.lRegister[L_POSACUMFLOWRATE];
+    reg.m_dPosAcumFlowRateDecPart   = rawDat.fRegister[D_POSACUMFLOWRATEDECPART];
+    reg.m_lNegAcumFlowRate          = rawDat.lRegister[L_NEGACUMFLOWRATE];
+    reg.m_dNegAcumFlowRateDecPart   = rawDat.fRegister[D_NEGACUMFLOWRATEDECPART];
+    reg.m_lNetAcumFlowRate          = rawDat.lRegister[L_NETACUMFLOWRATE];
+    reg.m_dNetAcumFlowRateDecPart   = rawDat.fRegister[D_NETACUMFLOWRATEDECPART];
+
+}
+
+void SCCFlowProtocol::asciiHexToFloat(unsigned char* pDst, char* pSrc, size_t bytes)
+{
+    pSrc += ((bytes-1)*2);
+    for (size_t i = 0; i < bytes; ++i)
+    {
+        *pDst++ = asciiHexToDec(pSrc);
+        pSrc -= 2;
+    }
 }
 
 void SCCFlowProtocol::asciiToReal4(char* p, double& val, char num)
 {
 }
 
-void SCCFlowProtocol::printData(char* p, char num)
+void SCCFlowProtocol::putData(char* p, char num)
 {
     //std::cout << "Data: ";
     m_iDataLen = num;
@@ -822,8 +849,4 @@ void SCCFlowProtocol::printData(char* p, char num)
 
     m_strData = p;
     return;
-
-    for ( size_t i = 0; i < (unsigned)num; ++i)
-        std::cout << *p++;
-    std::cout << std::endl;
 }
