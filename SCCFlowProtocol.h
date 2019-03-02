@@ -82,7 +82,7 @@
 #define VAR_NETACUMFLOWRATEDECPART	"NetAcumFlowRateDecPart"
 
 
-enum Host2WGTCommand
+/*enum Host2WGTCommand
 {
     Invalid = 0,
     StatusCheck,
@@ -162,7 +162,7 @@ struct VarStatus
     bool    bCurrentStatus;
     int     iThresHold;
     int     iChangesCount;
-};
+};*/
 
 struct FlowRegisters
 {
@@ -190,11 +190,11 @@ class SCCFlowProtocol
         virtual ~SCCFlowProtocol();
 
         std::string convChar2Hex(char* buffer, char& len);
-        std::string getStrCmdStatusCheck(int addr, char* buffer, char& len);
+        /*std::string getStrCmdStatusCheck(int addr, char* buffer, char& len);
         std::string getStrCmdSetAddr(int addr, int newAddr, char* buffer, char& len);
-        std::string getStrCmdGetTagId(int addr, char* buffer, char& len);
+        std::string getStrCmdGetTagId(int addr, char* buffer, char& len);*/
 
-        bool getWGTResponse(char* buffer, char len, std::string& cmd, int& addr, char* resp, char& respLen);
+        //bool getWGTResponse(char* buffer, char len, std::string& cmd, int& addr, char* resp, char& respLen);
         bool getFlowMeterResponse(char addr, char* buffer, char len);
 
         std::string getStrStatus(char status);
@@ -219,9 +219,9 @@ class SCCFlowProtocol
 
         unsigned char calcCRC(unsigned char* pFirst, unsigned char* pEnd);
         unsigned char calcLRC(unsigned char* pFirst,unsigned char len);
-        std::string getStrCmd(const std::string& cmd, int addr, int addr2, char* buffer, char& len);
+        //std::string getStrCmd(const std::string& cmd, int addr, int addr2, char* buffer, char& len);
         void moveBufferToLeft(char* pos, char offset);
-        std::string getWGTCommand(char cmd);
+        /*std::string getWGTCommand(char cmd);
         bool getWGTResponse(std::string& cmd, int& addr, char* resp, char& respLen);
         void addCommandToDvcMap(char cmd, char addr, char* resp, char len);
 
@@ -249,7 +249,7 @@ class SCCFlowProtocol
 
         void setVector(char addr, bool* vect);
         void clearVector(char addr, bool* vect);
-        bool isVector(char addr, bool* vect);
+        bool isVector(char addr, bool* vect);*/
 
         std::string boolToString(bool b, const std::string& valTrue = "", const std::string& valFalse = "");
 
@@ -303,17 +303,17 @@ class SCCFlowProtocol
         char* m_pLast;
         int m_iBufferSize;
 
-        commandStruct m_DeviceVector[MAX_CHANNELS];
+        //commandStruct m_DeviceVector[MAX_CHANNELS];
         //commandStruct* m_pCommandSt;
 
-        std::unordered_map <char, TagDataStruct> m_TagDataMap;
+        //std::unordered_map <char, TagDataStruct> m_TagDataMap;
 
-        char m_chStatusVector[MAX_CHANNELS];
+        /*char m_chStatusVector[MAX_CHANNELS];
         bool m_bAlarmVector[MAX_CHANNELS];
         bool m_bFailVector[MAX_CHANNELS];
         bool m_bNozzleActivedVector[MAX_CHANNELS];
         bool m_bTagDetected[MAX_CHANNELS];
-        VarStatus m_VarStatus[MAX_CHANNELS][MAX_VARS];
+        VarStatus m_VarStatus[MAX_CHANNELS][MAX_VARS];*/
         FlowRegisters m_Register[MAX_CHANNELS];
         RawData         m_RawData[MAX_CHANNELS];
 

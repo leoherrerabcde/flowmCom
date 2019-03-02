@@ -6,7 +6,7 @@
 
 extern SCCLog glLog;
 
-std::vector<std::string> stH2WCmdNameList =
+/*std::vector<std::string> stH2WCmdNameList =
 {
     CMD_INVALID, CMD_CHECKSTATUS, CMD_ADDRESSSETTING, CMD_GETTAGDATA
 };
@@ -71,13 +71,13 @@ static std::unordered_map<int,int> stVariableThresHoldMap =
     {FailStatus     , 2},
     {NozzleActived  , 3},
     {TagDetected    , 2},
-};
+};*/
 
 
 SCCFlowProtocol::SCCFlowProtocol() : m_pLast(m_chBufferIn), m_iBufferSize(0), m_iDataLen(0)
 {
     //ctor
-    memset(m_bAlarmVector,0, sizeof(bool)*MAX_CHANNELS);
+    /*memset(m_bAlarmVector,0, sizeof(bool)*MAX_CHANNELS);
     memset(m_bFailVector,0, sizeof(bool)*MAX_CHANNELS);
     memset(m_bNozzleActivedVector,0, sizeof(bool)*MAX_CHANNELS);
     memset(m_bTagDetected,0, sizeof(bool)*MAX_CHANNELS);
@@ -85,7 +85,7 @@ SCCFlowProtocol::SCCFlowProtocol() : m_pLast(m_chBufferIn), m_iBufferSize(0), m_
     memset(m_VarStatus, 0, sizeof(VarStatus) * MAX_CHANNELS*VariableName_size);
     for (int addr = 0; addr < MAX_CHANNELS; ++addr)
         for (int var = 0; var < VariableName_size; ++var)
-            m_VarStatus[addr][var].iThresHold   = stVariableThresHoldMap[var];
+            m_VarStatus[addr][var].iThresHold   = stVariableThresHoldMap[var];*/
 }
 
 SCCFlowProtocol::~SCCFlowProtocol()
@@ -93,30 +93,30 @@ SCCFlowProtocol::~SCCFlowProtocol()
     //dtor
 }
 
-std::string SCCFlowProtocol::getStrCmdStatusCheck(int addr,
+/*std::string SCCFlowProtocol::getStrCmdStatusCheck(int addr,
                                                char* buffer,
                                                char& len)
 {
     //return getStrCmd(CMD_CHECKSTATUS, addr, 0, buffer, len);
     return getCmdReadRegisters(addr, buffer, len, 0, 10);
-}
+}*/
 
-std::string SCCFlowProtocol::getStrCmdSetAddr(int addr,
+/*std::string SCCFlowProtocol::getStrCmdSetAddr(int addr,
                                                int addr2,
                                                char* buffer,
                                                char& len)
 {
     return getStrCmd(CMD_ADDRESSSETTING, addr, addr2, buffer, len);
-}
+}*/
 
-std::string SCCFlowProtocol::getStrCmdGetTagId(int addr,
+/*std::string SCCFlowProtocol::getStrCmdGetTagId(int addr,
                                                char* buffer,
                                                char& len)
 {
     return getStrCmd(CMD_GETTAGDATA, addr, 0, buffer, len);
-}
+}*/
 
-std::string SCCFlowProtocol::getStrCmd(const std::string& cmd,
+/*std::string SCCFlowProtocol::getStrCmd(const std::string& cmd,
                                                int addr,
                                                int addr2,
                                                char* buffer,
@@ -145,7 +145,7 @@ std::string SCCFlowProtocol::getStrCmd(const std::string& cmd,
     std::string msg((char*)buffer);
 
     return msg;
-}
+}*/
 
 unsigned char SCCFlowProtocol::calcCRC(unsigned char* pFirst, unsigned char* pEnd)
 {
@@ -184,7 +184,7 @@ std::string SCCFlowProtocol::convChar2Hex(char* buffer, char& len)
     return std::string(ss.str());
 }
 
-bool SCCFlowProtocol::getWGTResponse(std::string& cmd,
+/*bool SCCFlowProtocol::getWGTResponse(std::string& cmd,
                                         int& addr,
                                         char* resp,
                                         char& respLen)
@@ -294,7 +294,7 @@ std::string SCCFlowProtocol::getWGTCommand(char cmd)
             return it.first;
     }
     return CMD_INVALID;
-}
+}*/
 
 void SCCFlowProtocol::moveBufferToLeft(char* pos, char len)
 {
@@ -313,12 +313,12 @@ void SCCFlowProtocol::moveBufferToLeft(char* pos, char len)
     m_pLast -= len;
 }
 
-std::string SCCFlowProtocol::getStrStatus(char status)
+/*std::string SCCFlowProtocol::getStrStatus(char status)
 {
     return stStatusMap[status];
-}
+}*/
 
-void SCCFlowProtocol::addCommandToDvcMap(char cmd, char addr, char* resp, char len)
+/*void SCCFlowProtocol::addCommandToDvcMap(char cmd, char addr, char* resp, char len)
 {
     if (MAX_CHANNELS < addr)
         return;
@@ -457,9 +457,9 @@ void SCCFlowProtocol::getCommandFromAction(ActionStruct& actionSt,char addr, cha
         *buffer = NULL_CHAR;
         len = 0;
     }
-}
+}*/
 
-void SCCFlowProtocol::setVar(int addr, int var)
+/*void SCCFlowProtocol::setVar(int addr, int var)
 {
     VarStatus& v = m_VarStatus[addr][var];
 
@@ -608,7 +608,7 @@ ActionStruct SCCFlowProtocol::getActionFromStatus(char status)
         break;
     }
     return actionSt;
-}
+}*/
 
 std::string SCCFlowProtocol::printStatus(char addr, bool addStrData)
 {
@@ -644,7 +644,7 @@ std::string SCCFlowProtocol::printStatus(char addr, bool addStrData)
     return std::string(ss.str());
 }
 
-bool SCCFlowProtocol::isAlarm(char addr)
+/*bool SCCFlowProtocol::isAlarm(char addr)
 {
     return isVector(addr, m_bAlarmVector);
 }
@@ -662,7 +662,7 @@ bool SCCFlowProtocol::isNozzleActived(char addr)
 bool SCCFlowProtocol::isTagDetected(char addr)
 {
     return isVector(addr, m_bTagDetected);
-}
+}*/
 
 std::string SCCFlowProtocol::boolToString(bool b, const std::string& valTrue, const std::string& valFalse)
 {
@@ -677,7 +677,7 @@ std::string SCCFlowProtocol::boolToString(bool b, const std::string& valTrue, co
     return "false";
 }
 
-bool SCCFlowProtocol::getTagId(char addr, char* tagBuffer, char& len)
+/*bool SCCFlowProtocol::getTagId(char addr, char* tagBuffer, char& len)
 {
     auto it = m_TagDataMap.find(addr);
     if (it ==m_TagDataMap.end())
@@ -693,7 +693,7 @@ bool SCCFlowProtocol::getTagId(char addr, char* tagBuffer, char& len)
         memcpy(tagBuffer, tagDataSt.chTagData, tagDataSt.chLenData);
     }
     return true;
-}
+}*/
 
 std::string SCCFlowProtocol::getCmdReadRegisters(char addr,
                                     char* buffer,
