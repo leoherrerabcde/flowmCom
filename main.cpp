@@ -106,26 +106,31 @@ int main(int argc, char* argv[])
     SCCFlowProtocol flowProtocol;
     SCCRealTime clock;
 
-    commPort.openPort(nPort, baudRate);
+    //commPort.openPort(nPort, baudRate);
 
     char bufferOut[255];
     char bufferIn[250];
-    char len;
+    //char len;
+    char chLen = 0;
     int iAddr = 1;
     std::string msg;
 
     //msg = flowProtocol.getStrCmdStatusCheck(iAddr, bufferOut, len);
-    msg = flowProtocol.getCmdReadRegisters(iAddr, bufferOut, len, startReg, numRegs);
+    msg = flowProtocol.getCmdReadRegisters(iAddr, bufferOut, chLen, startReg, numRegs);
 
     //flowProtocol.getCmdReadRegisters(iAddr, bufferOut, len);
 
-    msg = flowProtocol.convChar2Hex(bufferOut, len);
+    msg = flowProtocol.convChar2Hex(bufferOut, chLen);
 
     if (st_bSendMsgView)
         std::cout << "Message: " << bufferOut << " sent." << std::endl;
 
-    commPort.sendData(bufferOut, len);
-    commPort.sleepDuringTxRx(len+numRegs*4+11);
+    //std::queue<int> comPortQueue;
+    commPort.setBaudRate(baudRate);
+    commPort.getComPortList(nPort);
+
+    /*commPort.sendData(bufferOut, len);
+    commPort.sleepDuringTxRx(len+numRegs*4+11);*/
 
     if (st_bSendMsgView)
         cout << "Waiting for response" << std::endl;
@@ -133,7 +138,6 @@ int main(int argc, char* argv[])
 
     int iTimeOut;
     bool bNextAddr;
-    char chLen = 0;
     //char chLenLast = 0;
     int iNoRxCounter = 0;
     do
@@ -148,6 +152,16 @@ int main(int argc, char* argv[])
         }
         if (chLen > 0)
         {
+            commPort.searchNextPort();
+            /*while(!comPortQueue.empty())
+            {
+                int nPort = comPortQueue.front();
+                commPort.closePort();
+                bool bOpened = commPort.openPort(nPort, baudRate);
+                comPortQueue.pop();
+                if (bOpened)
+                    break;
+            }*/
             if (st_bSendMsgView)
             {
                 cout << commPort.printCounter() << std::endl;
@@ -191,6 +205,11 @@ int main(int argc, char* argv[])
                 //bool bNextAction = false;
                 if (bIsValidResponse == true)
                 {
+                    /*while(!comPortQueue.empty())
+                    {
+                        comPortQueue.pop();
+                    }*/
+                    commPort.stopSearchPort();
                     posBuf = 0;
                     //iTimeOut = 50;
                     if (st_bRcvMsgView)
