@@ -26,10 +26,11 @@
 
 1550154723 /home/pi/Documents/source/commPort/Detect_SO.h
 
-1552068594 source:/home/pi/Documents/source/commPort/SCCLinuxComPort.cpp
+1552074385 source:/home/pi/Documents/source/commPort/SCCLinuxComPort.cpp
 	"SCCCommPort.h"
 	"../main_control/SCCFileManager.h"
 	"SCCRealTime.h"
+	<sys/ioctl.h>
 	<termios.h>
 	<unordered_map>
 	<sstream>
