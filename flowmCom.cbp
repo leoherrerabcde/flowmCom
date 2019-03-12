@@ -48,10 +48,13 @@
 		<Unit filename="../main_control/CSocket.cpp" />
 		<Unit filename="../main_control/CSocket.h" />
 		<Unit filename="../main_control/SCCDeviceNames.h" />
+		<Unit filename="../main_control/SCCDeviceParams.h" />
 		<Unit filename="../main_control/SCCFileManager.cpp" />
 		<Unit filename="../main_control/SCCFileManager.h" />
 		<Unit filename="../main_control/SCCLog.cpp" />
 		<Unit filename="../main_control/SCCLog.h" />
+		<Unit filename="../main_control/device.cpp" />
+		<Unit filename="../main_control/device.h" />
 		<Unit filename="SCCFlowProtocol.cpp" />
 		<Unit filename="SCCFlowProtocol.h" />
 		<Unit filename="main.cpp" />

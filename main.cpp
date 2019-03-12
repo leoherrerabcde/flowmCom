@@ -14,16 +14,21 @@
 #include "../main_control/CSocket.h"
 #include "../main_control/SCCDeviceNames.h"
 #include "../main_control/SCCLog.h"
+#include "../main_control/SCCDeviceParams.h"
+
 
 using namespace std;
 
 #define MAX_BUFFER_IN   2048
+#define MY_DEVICE_NAME  DEVICE_FLOWMETER
 
 static bool st_bSendMsgView = false;
 static bool st_bRcvMsgView  = true;
 
+SCCCommPort commPort;
 CSocket sckComPort;
-SCCLog glLog(std::cout);
+SCCLog globalLog(std::cout);
+bool gl_bVerbose(true);
 
 bool bConnected     = false;
 
@@ -34,12 +39,13 @@ std::string firstMessage()
     ss << FRAME_START_MARK;
     ss << DEVICE_NAME << ":" << DEVICE_FLOWMETER << ",";
     ss << SERVICE_PID << ":" << getpid();
+    ss << PARAM_COM_PORT << ":" << commPort.getComPort();
     ss << FRAME_STOP_MARK;
 
     return std::string(ss.str());
 }
 
-void printMsg(std::string msg)
+void printMsg(const std::string& msg = "")
 {
     if (sckComPort.isConnected())
     {
@@ -59,7 +65,7 @@ void printMsg(std::string msg)
 
 int main(int argc, char* argv[])
 {
-    int nPort           = 7;
+    std::string         nPort;
     int baudRate        = 9600;
     float fTimeFactor   = 1.0;
     int remotePort      = 0;
@@ -71,7 +77,7 @@ int main(int argc, char* argv[])
 
     if (argc > 2)
     {
-        nPort = std::stoi(argv[1]);
+        nPort = argv[1];
         baudRate = std::stoi(argv[2]);
         if (argc > 3)
             remotePort = std::stoi(argv[3]);
@@ -102,7 +108,9 @@ int main(int argc, char* argv[])
         sckComPort.connect("127.0.0.1", remotePort);
         bConnected  = false;
     }
-    SCCCommPort commPort;
+
+    commPort.setArgs(argc,&argv[0]);
+    commPort.setDeviceName(MY_DEVICE_NAME);
     SCCFlowProtocol flowProtocol;
     SCCRealTime clock;
 
@@ -142,6 +150,8 @@ int main(int argc, char* argv[])
     int iNoRxCounter = 0;
     do
     {
+        /*if (!bConnected && sckComPort.isConnected())
+            printMsg();*/
         bNextAddr = true;
         iTimeOut = 250;
         if (iNoRxCounter >= 5)
@@ -152,7 +162,8 @@ int main(int argc, char* argv[])
         }
         if (chLen > 0)
         {
-            commPort.searchNextPort();
+            if (!commPort.isDeviceConnected() && !commPort.searchNextPort())
+                break;
             /*while(!comPortQueue.empty())
             {
                 int nPort = comPortQueue.front();
@@ -209,6 +220,7 @@ int main(int argc, char* argv[])
                     {
                         comPortQueue.pop();
                     }*/
+                    commPort.setDeviceConnected();
                     commPort.stopSearchPort();
                     posBuf = 0;
                     //iTimeOut = 50;
@@ -269,8 +281,8 @@ int main(int argc, char* argv[])
     while (commPort.isOpened());
 
     sckComPort.disconnect();
-    exit(0);
     commPort.closePort();
+    exit(0);
 
     return 0;
 }

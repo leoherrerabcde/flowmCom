@@ -5,7 +5,7 @@
 1550508543 /home/pi/Documents/source/commPort/SCCArgumentParser.h
 	<unordered_map>
 
-1552068649 source:/home/pi/Documents/source/commPort/SCCCommPort.cpp
+1552399055 source:/home/pi/Documents/source/commPort/SCCCommPort.cpp
 	"SCCCommPort.h"
 	<string>
 	<sstream>
@@ -14,8 +14,9 @@
 	<cmath>
 	<cstring>
 	"SCCRealTime.h"
+	"../main_control/device.h"
 
-1552068550 /home/pi/Documents/source/commPort/SCCCommPort.h
+1552399279 /home/pi/Documents/source/commPort/SCCCommPort.h
 	"Detect_SO.h"
 	<windows.h>
 	<iostream>
@@ -26,11 +27,12 @@
 
 1550154723 /home/pi/Documents/source/commPort/Detect_SO.h
 
-1552074385 source:/home/pi/Documents/source/commPort/SCCLinuxComPort.cpp
+1552354024 source:/home/pi/Documents/source/commPort/SCCLinuxComPort.cpp
 	"SCCCommPort.h"
 	"../main_control/SCCFileManager.h"
 	"SCCRealTime.h"
 	<sys/ioctl.h>
+	<string>
 	<termios.h>
 	<unordered_map>
 	<sstream>
@@ -49,12 +51,12 @@
 1551712608 /home/pi/Documents/source/commPort/SCCRealTime.h
 	<iostream>
 
-1551482361 source:/home/pi/Documents/source/main_control/CSocket.cpp
+1552219805 source:/home/pi/Documents/source/main_control/CSocket.cpp
 	"CSocket.h"
 	"SCCLog.h"
 	<vector>
 
-1550723659 /home/pi/Documents/source/main_control/CSocket.h
+1552219766 /home/pi/Documents/source/main_control/CSocket.h
 	<iostream>
 	<future>
 	<functional>
@@ -83,7 +85,7 @@
 	"SCCLog.h"
 	<iostream>
 
-1552069382 source:/home/pi/Documents/source/flowmCom/main.cpp
+1552420676 source:/home/pi/Documents/source/flowmCom/main.cpp
 	<iostream>
 	<thread>
 	<chrono>
@@ -130,5 +132,29 @@
 	<unistd.h>
 	<sys/types.h>
 	<dirent.h>
+	<cstring>
+
+1552398303 /home/pi/Documents/source/main_control/device.h
+	<string>
+	<list>
+	"MainCtrlSettings.h"
+	"SCCLog.h"
+	"SCCDeviceNames.h"
+
+1550948418 /home/pi/Documents/source/main_control/MainCtrlSettings.h
+	<stdio.h>
+	<unordered_map>
+	"SCCDeviceNames.h"
+	"SCCDeviceParams.h"
+	"../commPort/SCCArgumentParser.h"
+
+1551843003 /home/pi/Documents/source/main_control/SCCDeviceParams.h
+
+1552422289 source:/home/pi/Documents/source/main_control/device.cpp
+	"device.h"
+	"SCCLog.h"
+	"SCCFileManager.h"
+	<stdlib.h>
+	<sstream>
 	<cstring>
 
