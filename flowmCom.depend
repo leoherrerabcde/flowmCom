@@ -51,12 +51,12 @@
 1551712608 /home/pi/Documents/source/commPort/SCCRealTime.h
 	<iostream>
 
-1552219805 source:/home/pi/Documents/source/main_control/CSocket.cpp
+1556588184 source:/home/pi/Documents/source/main_control/CSocket.cpp
 	"CSocket.h"
 	"SCCLog.h"
 	<vector>
 
-1552219766 /home/pi/Documents/source/main_control/CSocket.h
+1556588185 /home/pi/Documents/source/main_control/CSocket.h
 	<iostream>
 	<future>
 	<functional>
@@ -77,15 +77,15 @@
 	<sys/signal.h>
 	<mutex>
 
-1551989924 /home/pi/Documents/source/main_control/SCCLog.h
+1556588188 /home/pi/Documents/source/main_control/SCCLog.h
 	<string>
 	<ostream>
 
-1550713336 source:/home/pi/Documents/source/main_control/SCCLog.cpp
+1556588188 source:/home/pi/Documents/source/main_control/SCCLog.cpp
 	"SCCLog.h"
 	<iostream>
 
-1552420676 source:/home/pi/Documents/source/flowmCom/main.cpp
+1552422999 source:/home/pi/Documents/source/flowmCom/main.cpp
 	<iostream>
 	<thread>
 	<chrono>
@@ -99,6 +99,7 @@
 	"../main_control/CSocket.h"
 	"../main_control/SCCDeviceNames.h"
 	"../main_control/SCCLog.h"
+	"../main_control/SCCDeviceParams.h"
 
 1551554842 /home/pi/Documents/source/flowmCom/SCCFlowProtocol.h
 	<vector>
@@ -110,7 +111,7 @@
 	<iomanip>
 	<locale>
 
-1551798523 /home/pi/Documents/source/main_control/SCCDeviceNames.h
+1557284937 /home/pi/Documents/source/main_control/SCCDeviceNames.h
 
 1551554818 source:/home/pi/Documents/source/flowmCom/SCCFlowProtocol.cpp
 	"SCCFlowProtocol.h"
@@ -118,12 +119,12 @@
 	"../main_control/SCCLog.h"
 	<iostream>
 
-1551900177 /home/pi/Documents/source/main_control/SCCFileManager.h
+1556588188 /home/pi/Documents/source/main_control/SCCFileManager.h
 	<string>
 	<sstream>
 	<list>
 
-1551930334 source:/home/pi/Documents/source/main_control/SCCFileManager.cpp
+1556588188 source:/home/pi/Documents/source/main_control/SCCFileManager.cpp
 	"SCCFileManager.h"
 	"SCCLog.h"
 	<iostream>
@@ -134,27 +135,28 @@
 	<dirent.h>
 	<cstring>
 
-1552398303 /home/pi/Documents/source/main_control/device.h
+1556852199 /home/pi/Documents/source/main_control/device.h
 	<string>
 	<list>
 	"MainCtrlSettings.h"
 	"SCCLog.h"
 	"SCCDeviceNames.h"
 
-1550948418 /home/pi/Documents/source/main_control/MainCtrlSettings.h
+1556597202 /home/pi/Documents/source/main_control/MainCtrlSettings.h
 	<stdio.h>
 	<unordered_map>
 	"SCCDeviceNames.h"
 	"SCCDeviceParams.h"
 	"../commPort/SCCArgumentParser.h"
 
-1551843003 /home/pi/Documents/source/main_control/SCCDeviceParams.h
+1556854962 /home/pi/Documents/source/main_control/SCCDeviceParams.h
 
-1552422289 source:/home/pi/Documents/source/main_control/device.cpp
+1556853826 source:/home/pi/Documents/source/main_control/device.cpp
 	"device.h"
 	"SCCLog.h"
 	"SCCFileManager.h"
 	<stdlib.h>
 	<sstream>
 	<cstring>
+	<vector>
 
