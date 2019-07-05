@@ -166,13 +166,14 @@ struct VarStatus
 
 struct FlowRegisters
 {
-    double      m_dInstantFlowRate;
-    double      m_dFluidSpeed;
+    //double      m_dInstantFlowRate;
+    long        m_lInstantFlowRate;
+    //double      m_dFluidSpeed;
     double      m_dMeasureFluidSoundSpeed;
     long        m_lPosAcumFlowRate;
     double      m_dPosAcumFlowRateDecPart;
-    long        m_lNegAcumFlowRate;
-    double      m_dNegAcumFlowRateDecPart;
+    //long        m_lNegAcumFlowRate;
+    //double      m_dNegAcumFlowRateDecPart;
     long        m_lNetAcumFlowRate;
     double      m_dNetAcumFlowRateDecPart;
 };
